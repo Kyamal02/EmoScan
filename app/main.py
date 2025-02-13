@@ -7,7 +7,7 @@ import torch
 def load_sentiment_model():
     return pipeline(
         "text-classification",
-        model="cointegrated/rubert-tiny-sentiment-balanced",
+        model="cointegrated/rubert-medium-sentiment-balanced",
         device_map="auto" if torch.cuda.is_available() else None,
         max_length=512,
         truncation=True
