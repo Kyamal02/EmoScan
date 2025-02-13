@@ -1,21 +1,28 @@
 import streamlit as st
-from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
+from transformers import pipeline
 import torch
 
 
 @st.cache_resource
 def load_sentiment_model():
-    model_name = "SiberianNLP/rubert-base-cased-sentiment-rusentiment"
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSequenceClassification.from_pretrained(model_name)
-    return pipeline("text-classification", model=model, tokenizer=tokenizer)
+    return pipeline(
+        "text-classification",
+        model="cointegrated/rubert-tiny-sentiment-balanced",
+        device_map="auto" if torch.cuda.is_available() else None,
+        max_length=512,
+        truncation=True
+    )
 
 
 def main():
     st.title("📝 Анализатор тональности русского текста")
-    st.write("Введите текст для анализа эмоциональной окраски (позитивный/нейтральный/негативный)")
+    st.write("Введите текст для анализа эмоциональной окраски (нейтральный/позитивный/негативный)")
 
-    classifier = load_sentiment_model()
+    try:
+        classifier = load_sentiment_model()
+    except Exception as e:
+        st.error(f"Ошибка загрузки модели: {str(e)}")
+        return
 
     text = st.text_area("Введите ваш текст:", height=150)
 
@@ -33,24 +40,19 @@ def main():
                 }
                 emoji = emoji_dict.get(label, "🤔")
                 st.subheader(f"Результат: {label.capitalize()} {emoji}")
-
                 st.metric("Уверенность модели", f"{score * 100:.1f}%")
 
-                with torch.no_grad():
-                    inputs = classifier.tokenizer(text, return_tensors="pt", truncation=True, padding=True)
-                    outputs = classifier.model(**inputs)
-                    probs = torch.nn.functional.softmax(outputs.logits, dim=-1)[0]
+                # Для отображения распределения вероятностей
+                all_scores = classifier(text, return_all_scores=True)[0]
+                probabilities = {item['label']: item['score'] for item in all_scores}
 
                 st.write("Распределение вероятностей:")
-                labels = ['neutral', 'positive', 'negative']
-                probabilities = {label: probs[i].item() for i, label in enumerate(labels)}
-
                 cols = st.columns(3)
                 for col, (label, prob) in zip(cols, probabilities.items()):
                     with col:
                         st.write(f"{label.capitalize()}")
                         st.progress(prob, text=f"{prob * 100:.1f}%")
-                        st.caption(f"{emoji_dict[label]} {prob * 100:.1f}%")
+                        st.caption(f"{emoji_dict.get(label, '')} {prob * 100:.1f}%")
 
             except Exception as e:
                 st.error(f"Произошла ошибка: {str(e)}")
