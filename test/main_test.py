@@ -9,7 +9,7 @@ class TestSentimentAnalysis:
         self.test_cases = [
             ("Это лучшее приложение!", "positive"),
             ("Ненавижу этот сервис!", "negative"),
-            ("Обычный день без особенностей", "neutral")
+            ("сегодня без изменений", "neutral")
         ]
 #
 #
