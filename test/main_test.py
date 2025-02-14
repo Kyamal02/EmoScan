@@ -12,6 +12,7 @@ class TestSentimentAnalysis:
             ("Обычный день без особенностей", "neutral")
         ]
 #
+#
     def test_model_loading(self):
         assert self.model is not None
         assert self.model.task == "text-classification"
