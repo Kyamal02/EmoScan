@@ -1,5 +1,6 @@
 import pytest
-from app import main, load_sentiment_model
+from app.main import load_sentiment_model
+
 
 class TestSentimentAnalysis:
     @pytest.fixture(autouse=True)

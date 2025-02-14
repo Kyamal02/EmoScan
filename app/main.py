@@ -45,7 +45,7 @@ def main():
                 # Для отображения распределения вероятностей
                 all_scores = classifier(text, return_all_scores=True)[0]
                 probabilities = {item['label']: item['score'] for item in all_scores}
-
+#
                 st.write("Распределение вероятностей:")
                 cols = st.columns(3)
                 for col, (label, prob) in zip(cols, probabilities.items()):
