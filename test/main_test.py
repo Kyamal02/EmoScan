@@ -7,7 +7,7 @@ class TestSentimentAnalysis:
     def setup(self):
         self.model = load_sentiment_model()
         self.test_cases = [
-            ("Я обожаю это приложение!", "positive"),
+            ("Это лучшее приложение!", "positive"),
             ("Ненавижу этот сервис!", "negative"),
             ("Обычный день без особенностей", "neutral")
         ]
